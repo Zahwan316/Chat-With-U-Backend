@@ -35,9 +35,9 @@ const validateToken = (req: Request,res: Response,next:NextFunction) => {
     }
     else{
         res.status(HttpStatusCode.BadRequest).json({
-            message:"Invalid Token",
+            message:"Unauthorized",
             method:req.method,
-            statusCode:HttpStatusCode.BadRequest,
+            statusCode:HttpStatusCode.Unauthorized,
             error:true,
         })
     }
