@@ -3,10 +3,18 @@ import sequelize from "../config"
 import { DataTypes } from "sequelize";
 import HTTPStatusCode from "../function/statuscode"
 import bcrypt from "bcrypt"
+import { HttpStatusCode } from "axios";
+import UserType from "../types/user";
+import MessageType from "../types/message";
 
+
+
+const errorHandling = require("../function/errhandling")
 const user = require("../../models/User")
 const User = user(sequelize,DataTypes)
 const {v4:uuidv4} = require("uuid")
+const message = require("../../models/Message")
+const Message = message(sequelize,DataTypes)
 
 type errorReturn = {
     message: string,
@@ -88,6 +96,7 @@ const userAddController = async(req: Request,res: Response) => {
         else{
             const createUser = await User.create({
                 ...req.body,
+                image:"/",
                 id:uuidv4(),
                 password:passwordHash
             })
@@ -135,8 +144,96 @@ const userGetByNumberPhoneController = async(req: Request,res: Response) => {
     }
 }
 
+const userEditController = async(req: Request,res: Response ) => {
+    try{
+        const id: string = req.params?.id
+        const searchUser = await User.findByPk(id)
+        if(searchUser){
+            const updatedUser = await searchUser.update({
+                ...req.body,
+            })
+            res.status(HttpStatusCode.Ok).json({
+                message:"Data berhasil diperbarui",
+                error:false,
+                method:req.method,
+                statusCode:HttpStatusCode.Ok
+            })
+        }
+        else{
+            res.status(HttpStatusCode.NotFound).json({
+                message:"Data tidak ditemukan",
+                error:true,
+                method:req.method,
+                statusCode:HttpStatusCode.NotFound
+            })
+        }
+    }
+    catch(e){
+        errorHandling(req,res,e)
+    }
+}
+
+const userDeleteController = async(req: Request,res: Response) => {
+    try{
+        const id: string = req.params?.id
+        const findUser = await User.findByPk(id)
+        //const message = await Message.findAll({where:{user_from_id:findUser?.id}})
+        //console.log(message)
+        if(findUser){
+            Message.destroy({where:{user_from_id:findUser?.id}})
+            findUser.destroy()
+            res.status(HttpStatusCode.Ok).json({
+                message:"Data berhasil dihapus",
+                method:req.method,
+                statusCode:HttpStatusCode.Ok,
+                error:false,
+            })
+        }else{
+            res.status(HttpStatusCode.InternalServerError).json({
+                message:"Data gagal dihapus",
+                method:req.method,
+                statusCode:HttpStatusCode.InternalServerError,
+                error:true,
+        })
+        }
+    }
+    catch(e){
+        errorHandling(req,res,e)
+    }
+}
+
+const userGetByIdConroller = async(req: Request,res: Response) => {
+    try{
+        const id: string = req.params?.id
+        const findUser: UserType = await User.findByPk(id)
+        if(findUser){
+            res.status(HttpStatusCode.Ok).json({
+                message:"Data berhasil diambil",
+                data: findUser,
+                error:false,
+                method:req.method
+            })
+        }
+        else{
+            res.status(HTTPStatusCode.NOT_FOUND).json({
+                message:"Data tidak ditemukan",
+                error:false,
+                method:req.method,
+                statusCode:HttpStatusCode.NotFound
+            })
+        }
+    }
+    catch(e){
+        errorHandling(req,res,e)
+
+    }
+}
+
 module.exports = {
     userGetController,
     userAddController,
     userGetByNumberPhoneController,
+    userEditController,
+    userDeleteController,
+    userGetByIdConroller,
 }

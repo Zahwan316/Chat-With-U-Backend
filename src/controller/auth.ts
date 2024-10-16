@@ -12,6 +12,7 @@ const errorHandling = require("../function/errhandling")
 const secret_key = process.env.JWT_SECRET_KEY as string
 const user = require("../../models/User")
 const User = user(sequelize,DataTypes)
+const {v4:uuidv4} = require("uuid")
 
 dotenv.config()
 
@@ -72,10 +73,59 @@ const LoginController = async(req: Request,res: Response) => {
 
 const RegisterController = async(req: Request,res: Response) => {
     try{
+        type requiredbody = {
+            username:string,
+            fullname:string,
+            password:string
+        }
+        const {username,fullname,password,number_phone,email,bio,image} = req.body
 
+        const requiredBody: requiredbody = {username,fullname,password}
+
+        for(const key in requiredBody){
+            const bodykey = key as keyof requiredbody
+            if(requiredBody[bodykey] === "" || requiredBody[bodykey] === null){
+                res.status(HTTPStatusCode.BAD_REQUEST).json({
+                    message:"Username,fullname,dan password tidak boleh kosong",
+                    error:true,
+                    statusCode:HTTPStatusCode.BAD_REQUEST,
+                    method:req.method
+                })
+                break;
+            }
+        }
+        
+        const passwordHash = req.body.password && await bcrypt.hash(password,10)
+        const sameUser = await User.findOne({where:{
+            username,
+            fullname,
+            email
+        }})
+        if(sameUser){
+            res.status(HTTPStatusCode.BAD_REQUEST).json({
+                message:"Akun sudah ada",
+                error:true,
+                statusCode:HTTPStatusCode.BAD_REQUEST,
+                method:req.method
+            })
+        }
+        else{
+            const createUser = await User.create({
+                ...req.body,
+                image:"/",
+                id:uuidv4(),
+                password:passwordHash
+            })
+            res.status(HTTPStatusCode.CREATED).json({
+                message:"Akun berhasil dibuat",
+                statusCode: HTTPStatusCode.CREATED,
+                error: false,
+                method: req.method
+            })
+        }
     }
     catch(e){
-
+        errorHandling(req,res,e)
     }
 }
 

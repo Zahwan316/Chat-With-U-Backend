@@ -40,7 +40,11 @@ io.on("connection",(socket: any) => {
         console.log("message : ",message)
 
         try{
-            axios.post("http://localhost:3000/message",message)
+            axios.post("http://localhost:3000/api/message",message,{
+                "headers":{
+                  "Authorization":`Bearer ${message?.token}`
+                }
+              })
         }
         catch(e){
             console.log(e)
