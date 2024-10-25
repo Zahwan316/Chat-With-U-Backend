@@ -11,6 +11,7 @@ const socketIo = require("socket.io")
 const userRoute = require("./route/user")
 const messageRoute = require("./route/message")
 const authRoute = require("./route/auth")
+const statusRoute = require("./route/status")
 
 dotenv.config()
 
@@ -32,6 +33,7 @@ app.use(express.urlencoded({extended: true}))
 app.use(userRoute)
 app.use(messageRoute)
 app.use(authRoute)
+app.use(statusRoute)
 
 io.on("connection",(socket: any) => {
     console.log("user connected")
@@ -50,6 +52,10 @@ io.on("connection",(socket: any) => {
             console.log(e)
         }
         io.emit("message",message)
+    })
+
+    socket.on("status",(data: any) => {
+        console.log(data)
     })
 
     socket.on("disconnect",() => {
