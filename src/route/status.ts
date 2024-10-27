@@ -1,19 +1,20 @@
 import express,{Express,Request,Response} from "express"
+import validateToken from '../middleware/validateToken';
 
 const router = express.Router()
-const {getStatusController} = require("../controller/status")
+const {getStatusController,addStatusController,deleteStatusController} = require("../controller/status")
 
 router.route("/api/status")
-    .get(async(req: Request,res: Response) => {
+    .get(validateToken,async(req: Request,res: Response) => {
         getStatusController(req,res)
     })
-    .post(async(req: Request,res: Response) => {
-
+    .post(validateToken,async(req: Request,res: Response) => {
+        addStatusController(req,res)
     })
 
 router.route("/api/status/id/:id")
-    .delete(async(req: Request,res: Response) => {
-
+    .delete(validateToken,async(req: Request,res: Response) => {
+        addStatusController(req,res)
     })
 
 module.exports = router

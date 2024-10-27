@@ -27,7 +27,7 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: true,
       defaultValue: Sequelize.Sequelize.fn('now')
     },
-    expired: {
+    expired_at: {
       type: DataTypes.DATE,
       allowNull: true
     }
