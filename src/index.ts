@@ -54,8 +54,19 @@ io.on("connection",(socket: any) => {
         io.emit("message",message)
     })
 
-    socket.on("status",(data: any) => {
-        console.log(data)
+    socket.on("status",(message: any) => {
+        console.log(message)
+        try{
+            axios.post("http://localhost:3000/api/status",message,{
+                "headers":{
+                  "Authorization":`Bearer ${message?.token}`
+                }
+              })
+        }
+        catch(e){
+            console.log(e)
+        }
+        io.emit("status",message)
     })
 
     socket.on("disconnect",() => {

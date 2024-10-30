@@ -14,7 +14,7 @@ router.route("/api/status")
 
 router.route("/api/status/id/:id")
     .delete(validateToken,async(req: Request,res: Response) => {
-        addStatusController(req,res)
+        deleteStatusController(req,res)
     })
 
 module.exports = router

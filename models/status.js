@@ -8,7 +8,11 @@ module.exports = function(sequelize, DataTypes) {
     },
     user_id: {
       type: DataTypes.UUID,
-      allowNull: false
+      allowNull: false,
+      references: {
+        model: 'User',
+        key: 'id'
+      }
     },
     type: {
       type: DataTypes.STRING,
@@ -29,6 +33,10 @@ module.exports = function(sequelize, DataTypes) {
     },
     expired_at: {
       type: DataTypes.DATE,
+      allowNull: true
+    },
+    time: {
+      type: DataTypes.STRING,
       allowNull: true
     }
   }, {

@@ -58,7 +58,7 @@ const addStatusController = async(req:Request,res: Response) => {
 
 const deleteStatusController = async(req:Request,res: Response) => {
     try{
-        const id = req.params
+        const {id} = req.params
         const findStatus = await Status.findByPk(id)
         if(findStatus){
             await findStatus.destroy()

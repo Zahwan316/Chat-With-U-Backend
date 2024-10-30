@@ -8,6 +8,8 @@ function initModels(sequelize) {
   var User = _User(sequelize, DataTypes);
   var status = _status(sequelize, DataTypes);
 
+  status.belongsTo(User, { as: "user", foreignKey: "user_id"});
+  User.hasMany(status, { as: "statuses", foreignKey: "user_id"});
 
   return {
     Message,
