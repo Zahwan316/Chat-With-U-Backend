@@ -6,6 +6,8 @@ import http from 'http';
 import cors from "cors"
 import {Server as SocketIoServer} from "socket.io"
 import axios from "axios";
+import status from "./types/status";
+import onlineUser from "./types/onlineUser";
 
 const socketIo = require("socket.io")
 const userRoute = require("./route/user")
@@ -34,6 +36,8 @@ app.use(userRoute)
 app.use(messageRoute)
 app.use(authRoute)
 app.use(statusRoute)
+
+let onlineUser: onlineUser[] = []
 
 io.on("connection",(socket: any) => {
     console.log("user connected")
@@ -69,8 +73,43 @@ io.on("connection",(socket: any) => {
         io.emit("status",message)
     })
 
+    socket.on("deleteStatus",async(message: any) => {
+        let data: status[] = []
+        try{
+            await axios.delete("http://localhost:3000/api/status/id/"+message?.id,{
+                "headers":{
+                  "Authorization":`Bearer ${message?.token}`
+                }
+              })
+
+            const res = await axios.get("http://localhost:3000/api/status",{
+              "headers":{
+                "Authorization":`Bearer ${message?.token}`
+              }
+            })
+
+            data.push(res.data.data)
+        }
+        catch(e){
+            console.log(e)
+        }
+
+        io.emit("status",data)
+    })
+
+    socket.on("online",(id: any) => {
+        if(!onlineUser.some((user) => user.userid === id)){
+            onlineUser.push({userid:id,socketid:socket.id})
+        }
+
+        io.emit('getUser',onlineUser)
+    })
+
     socket.on("disconnect",() => {
+        onlineUser = onlineUser.filter((user) => user.socketid != socket.id)
         console.log("user disconnect")
+
+        io.emit("getUser",onlineUser)
     })
 })
 
