@@ -43,7 +43,6 @@ const addStatusController = async(req:Request,res: Response) => {
                 oneMinuteLater.setMinutes(oneMinuteLater.getMinutes() + 1)
                 const createStatus = await Status.create({
                     ...req.body,
-                    id:uuidv4(),
                     expired_at: oneMinuteLater.toISOString()
                 })
     

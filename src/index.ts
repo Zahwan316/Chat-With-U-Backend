@@ -9,11 +9,13 @@ import axios from "axios";
 import status from "./types/status";
 import onlineUser from "./types/onlineUser";
 
+//import route
 const socketIo = require("socket.io")
 const userRoute = require("./route/user")
 const messageRoute = require("./route/message")
 const authRoute = require("./route/auth")
 const statusRoute = require("./route/status")
+const groupRoute = require("./route/group")
 
 dotenv.config()
 
@@ -28,17 +30,21 @@ const io = new SocketIoServer(server,{
     cors: corsoption
 })
 
+//route config
 app.use(cors(corsoption))
 app.use(express.json())
 app.use(express.urlencoded({extended: true}))
 
+//set route
 app.use(userRoute)
 app.use(messageRoute)
 app.use(authRoute)
 app.use(statusRoute)
-
+app.use(groupRoute)
+//local state
 let onlineUser: onlineUser[] = []
 
+//socket logic
 io.on("connection",(socket: any) => {
     console.log("user connected")
 
@@ -76,7 +82,7 @@ io.on("connection",(socket: any) => {
     socket.on("deleteStatus",async(message: any) => {
         let data: status[] = []
         try{
-            await axios.delete("http://localhost:3000/api/status/id/"+message?.id,{
+            const resDelete = await axios.delete("http://localhost:3000/api/status/id/"+message?.id,{
                 "headers":{
                   "Authorization":`Bearer ${message?.token}`
                 }
@@ -88,13 +94,16 @@ io.on("connection",(socket: any) => {
               }
             })
 
-            data.push(res.data.data)
+            const dataresponse = res.data.data
+
+            data.push(...dataresponse)
+            console.log(data)
         }
         catch(e){
             console.log(e)
         }
 
-        io.emit("status",data)
+        io.emit("refresh-status",data)
     })
 
     socket.on("online",(id: any) => {
