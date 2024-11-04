@@ -16,6 +16,7 @@ const messageRoute = require("./route/message")
 const authRoute = require("./route/auth")
 const statusRoute = require("./route/status")
 const groupRoute = require("./route/group")
+const memberGroupRoute = require("./route/memberGroup")
 
 dotenv.config()
 
@@ -41,6 +42,8 @@ app.use(messageRoute)
 app.use(authRoute)
 app.use(statusRoute)
 app.use(groupRoute)
+app.use(memberGroupRoute)
+
 //local state
 let onlineUser: onlineUser[] = []
 
