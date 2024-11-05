@@ -5,6 +5,7 @@ import { HttpStatusCode } from "axios"
 import { uuid } from "uuidv4"
 import responseHandling from "../function/respondHandling"
 import HTTPStatusCode from "../function/statuscode"
+import { Op } from "sequelize"
 
 const errorHandling = require("../function/errhandling")
 const status = require("../../models/status")
@@ -16,7 +17,17 @@ const {v4:uuidv4} = require("uuid")
 
 const getStatusController = async(req:Request,res: Response) => {
     try{
-        const status = await Status.findAll()
+        const now = new Date();
+         const status = await Status.findAll({
+            where:{
+                expired_at:{
+                    [Op.gt]: now
+                }
+            }
+        }) 
+
+        //const status = await Status.findAll()
+        
         if(status){
             responseHandling(HttpStatusCode.Ok,"Data berhasil diambil",res,req,false,status)
         }
@@ -40,7 +51,7 @@ const addStatusController = async(req:Request,res: Response) => {
             }
             else{
                 const oneMinuteLater = new Date()
-                oneMinuteLater.setMinutes(oneMinuteLater.getMinutes() + 1)
+                oneMinuteLater.setDate(oneMinuteLater.getDate() + 1)
                 const createStatus = await Status.create({
                     ...req.body,
                     expired_at: oneMinuteLater.toISOString()
