@@ -9,6 +9,8 @@ const memberGroup = require("../../models/MemberGroup")
 const MemberGroup = memberGroup(sequelize,DataTypes)
 const errorHandling = require("../function/errhandling")
 const {v4:uuidv4} = require("uuid")
+const group = require("../../models/Group")
+const Group = group(sequelize,DataTypes)
 
 const getAllMemberGroupController = async(req: Request,res: Response) => {
     try{
@@ -25,9 +27,14 @@ const getAllMemberGroupController = async(req: Request,res: Response) => {
 const addMemberGroupController = async(req: Request,res: Response) => {
     try{
         const {id,Group_id,User_id} = req.body
+        const findGroup = await Group.findByPk(Group_id)
 
         if(Group_id === "" || Group_id === null || User_id === "" || User_id === null){
             responseHandling(HTTPStatusCode.BAD_REQUEST,"Group id dan User id tidak boleh kosong",res,req,true)
+        }
+        //check availability group
+        else if(!findGroup || findGroup.length === 0){
+            responseHandling(HTTPStatusCode.NOT_FOUND,"Group tidak ditemukan",res,req,true)
         }
         else{
             if(!id || id === "" || id === null){
@@ -86,9 +93,26 @@ const getByIdMemberGroupController = async(req:Request,res: Response) => {
     }
 }
 
+const getMemberGroupUserIdController = async(req: Request,res: Response) => {
+    try{
+        const {userId} = req.params
+        const findGroup = await MemberGroup.findAll({where:{User_id:userId}})
+        if(findGroup){
+            responseHandling(HTTPStatusCode.OK,"Data berhasil diambil",res,req,false,findGroup)
+        }
+        else{
+            responseHandling(HTTPStatusCode.NOT_FOUND,"Data tidak ditemukan",res,req,true)
+        }
+    }
+    catch(e){
+        errorHandling(req,res,e)
+    }
+}
+
 module.exports = {
     getAllMemberGroupController,
     addMemberGroupController,
     deleteMemberGroupController,
-    getByIdMemberGroupController
+    getByIdMemberGroupController,
+    getMemberGroupUserIdController
 }

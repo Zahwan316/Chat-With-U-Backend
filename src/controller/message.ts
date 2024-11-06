@@ -3,6 +3,7 @@ import sequelize from "../config";
 import { DataTypes } from "sequelize";
 import HTTPStatusCode from "../function/statuscode";
 import { Op } from "sequelize";
+import responseHandling from "../function/respondHandling";
 
 const errorHandling = require("../function/errhandling")
 const message = require("../../models/Message")
@@ -87,8 +88,25 @@ const getSpecificMessage = async(req: Request,res: Response) => {
     }
 }
 
+const getGroupMessageController = async(req:Request,res:Response) => {
+    try{
+        const {group_id} = req.params
+        const findMessage = await Message.findAll({where:{group_id}})
+        if(findMessage){
+            responseHandling(HTTPStatusCode.OK,"Data berhasil diambil",res,req,false,findMessage)
+        } 
+        else{
+            responseHandling(HTTPStatusCode.NOT_FOUND,"Data tidak ditemukan",res,req,true)
+        }
+    }
+    catch(e){
+        errorHandling(req,res,e)
+    }
+}
+
 module.exports = {
     getAllMessageController,
     addMessageController,
-    getSpecificMessage
+    getSpecificMessage,
+    getGroupMessageController
 }

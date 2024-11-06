@@ -8,6 +8,7 @@ const {
     addMemberGroupController,
     deleteMemberGroupController,
     getByIdMemberGroupController,
+    getMemberGroupUserIdController
 } = require("../controller/memberGroup")
 
 router.route("/api/memberGroup")
@@ -24,6 +25,11 @@ router.route("/api/memberGroup/id/:id")
     })
     .get(validateToken,(req:Request,res:Response) => {
         getByIdMemberGroupController(req,res)
+    })
+
+router.route("/api/memberGroup/userId/:userId")
+    .get(validateToken,(req:Request,res: Response) => {
+        getMemberGroupUserIdController(req,res)
     })
 
 module.exports = router
