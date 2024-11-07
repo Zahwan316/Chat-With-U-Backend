@@ -4,10 +4,16 @@ import { DataTypes } from "sequelize";
 import HTTPStatusCode from "../function/statuscode";
 import { Op } from "sequelize";
 import responseHandling from "../function/respondHandling";
+import MemberGroup from "../types/member_group";
+import GroupType from "../types/group";
 
 const errorHandling = require("../function/errhandling")
 const message = require("../../models/Message")
 const Message = message(sequelize,DataTypes)
+const group = require("../../models/Group")
+const Group = group(sequelize,DataTypes)
+const memberGroup = require("../../models/MemberGroup")
+const MemberGroup = memberGroup(sequelize,DataTypes)
 const {v4:uuidv4} = require("uuid")
 
 const getAllMessageController = async(req: Request,res: Response) => {
@@ -24,11 +30,22 @@ const getAllMessageController = async(req: Request,res: Response) => {
                 }
                 ,
                 order:sequelize.col("created_Date")
-
             })
+
+            const checkMemberGroup = await MemberGroup.findAll({where:{User_id:userfromID}})
+            const memberGroupId = checkMemberGroup.map((item:MemberGroup) => item.Group_id)
+            const findGroup = await Group.findAll({where:{id:{[Op.in]:memberGroupId}}})
+            const GroupId = findGroup.map((item:GroupType) => item.id)
+
+            const findAllGroupChat = await Message.findAll({where:{group_id:{[Op.in]:GroupId}}})
+
+            const mergeChat = [...messageFromQueryUser,...findAllGroupChat]
+
+            console.log(mergeChat)
+
             res.status(HTTPStatusCode.OK).json({
                 message:"Data berhasil diambil",
-                data:messageFromQueryUser,
+                data:mergeChat,
                 error:false,
                 statusCode:HTTPStatusCode.OK
             })

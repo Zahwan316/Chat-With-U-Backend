@@ -1,4 +1,4 @@
-type group = {
+type GroupType = {
     id: string,
     Admin_user_id: string,
     name: string,
@@ -7,4 +7,4 @@ type group = {
     created_date: string,
 }
 
-export default group
+export default GroupType
