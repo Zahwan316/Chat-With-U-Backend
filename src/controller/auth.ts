@@ -74,9 +74,9 @@ const LoginController = async(req: Request,res: Response) => {
 const RegisterController = async(req: Request,res: Response) => {
     try{
         type requiredbody = {
-            username:string,
-            fullname:string,
-            password:string
+            username: string,
+            fullname: string,
+            password: string
         }
         const {username,fullname,password,number_phone,email,bio,image} = req.body
 
@@ -86,9 +86,9 @@ const RegisterController = async(req: Request,res: Response) => {
             const bodykey = key as keyof requiredbody
             if(requiredBody[bodykey] === "" || requiredBody[bodykey] === null){
                 res.status(HTTPStatusCode.BAD_REQUEST).json({
-                    message:"Username,fullname,dan password tidak boleh kosong",
-                    error:true,
-                    statusCode:HTTPStatusCode.BAD_REQUEST,
+                    message: "Username,fullname,dan password tidak boleh kosong",
+                    error: true,
+                    statusCode: HTTPStatusCode.BAD_REQUEST,
                     method:req.method
                 })
                 break;

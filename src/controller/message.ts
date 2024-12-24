@@ -23,40 +23,24 @@ const getAllMessageController = async(req: Request,res: Response) => {
         })
         const {userfromID,usertargetID} = req.query
         if(userfromID && usertargetID){
-            const messageFromQueryUser = await Message.findAll({where:
-                {
-                    [Op.or]:[{user_target_id:usertargetID},{user_from_id:userfromID}],
-
-                }
-                ,
-                order:sequelize.col("created_Date")
-            })
-
-            const checkMemberGroup = await MemberGroup.findAll({where:{User_id:userfromID}})
-            const memberGroupId = checkMemberGroup.map((item:MemberGroup) => item.Group_id)
-            const findGroup = await Group.findAll({where:{id:{[Op.in]:memberGroupId}}})
-            const GroupId = findGroup.map((item:GroupType) => item.id)
-
-            const findAllGroupChat = await Message.findAll({where:{group_id:{[Op.in]:GroupId}}})
-
-            const mergeChat = [...messageFromQueryUser,...findAllGroupChat]
-
-            console.log(mergeChat)
-
-            res.status(HTTPStatusCode.OK).json({
-                message:"Data berhasil diambil",
-                data:mergeChat,
-                error:false,
-                statusCode:HTTPStatusCode.OK
-            })
+          const messageFromQueryUser = await Message.findAll({where:
+              {
+                  [Op.or]:[{user_target_id:usertargetID},{user_from_id:userfromID}],
+              }
+              ,
+              order:sequelize.col("created_Date")
+          })
+          const checkMemberGroup = await MemberGroup.findAll({where:{User_id:userfromID}})
+          const memberGroupId = checkMemberGroup.map((item:MemberGroup) => item.Group_id)
+          const findGroup = await Group.findAll({where:{id:{[Op.in]:memberGroupId}}})
+          const GroupId = findGroup.map((item:GroupType) => item.id)
+          const findAllGroupChat = await Message.findAll({where:{group_id:{[Op.in]:GroupId}}})
+          const mergeChat = [...messageFromQueryUser,...findAllGroupChat]
+          console.log(mergeChat)
+          responseHandling(HTTPStatusCode.OK,"Data berhasil diambil",res,req,false,mergeChat)
         }
         else{
-            res.status(HTTPStatusCode.OK).json({
-                message:"Data berhasil diambil",
-                data:allMessage,
-                error:false,
-                statusCode:HTTPStatusCode.OK
-            })
+          responseHandling(HTTPStatusCode.OK,"Data berhasil diambil",res,req,false,allMessage)
         }
     }
     catch(e){
@@ -82,12 +66,7 @@ const addMessageController = async(req:Request,res: Response) => {
                 id:uuidv4(),
             })
 
-            res.status(HTTPStatusCode.CREATED).json({
-                message:"Data berhasil ditambahkan",
-                error:false,
-                method:req.method,
-                statusCode:HTTPStatusCode.CREATED
-            })
+            responseHandling(HTTPStatusCode.CREATED,"Data berhasil ditambahkan",res,req,false)
         }
 
     }
